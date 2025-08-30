@@ -1,0 +1,37 @@
+workflows:
+  testflight-release:
+    name: iOS TestFlight Deployment
+    instance_type: mac_mini_m2 # Use a modern Mac for the latest SDK
+
+    environment:
+      flutter: stable # Or the channel you are on
+      xcode: latest    # This will use the latest Xcode version with the required SDK
+
+      # We'll set these up as environment variables in the Codemagic UI later
+      groups:
+        - appstore_credentials
+
+    scripts:
+      # Your custom pre-build scripts go here.
+      # For example, to install dependencies.
+      - name: Set up Flutter
+        script: |
+          flutter pub get
+          flutter clean
+
+      - name: Build iOS App
+        script: |
+          flutter build ipa --release
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_log/*.log
+
+    publishing:
+      # This is the section for App Store Connect publishing
+      app_store_connect:
+        api_key: 6XLSH5W989 # The name of your API Key environment variable group
+        # TestFlight distribution
+        # Set to true to automatically distribute to TestFlight.
+        # You can also specify groups and release notes here.
+        submit_for_testflight: true
